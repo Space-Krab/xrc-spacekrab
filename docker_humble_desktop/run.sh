@@ -32,7 +32,7 @@ current_dir=$(pwd)
 parent_dir=$(dirname "$current_dir")
 
 docker run -it \
-    --name base_humble_desktop \
+    --name base_publisher \
     --rm \
     --privileged \
     --net=host \

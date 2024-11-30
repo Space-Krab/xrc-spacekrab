@@ -21,6 +21,8 @@ find_package(rosidl_default_generators REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
   # Add all your custom messages files here for compilation
+  msg/Vector3.msg
+  msg/Twist.msg
   msg/Command.msg
   
 )
