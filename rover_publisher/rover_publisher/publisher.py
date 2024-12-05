@@ -15,11 +15,12 @@ class TrajectoryPublisher(Node):
         self.get_logger().info('Publisher node has been started.')
         
         self.stdscr = curses.initscr()
-        self.curses.noecho()
-        self.curses.cbreak()
+        curses.noecho()
+        curses.cbreak()
         self.stdscr.keypad(True)
         
         self.prev_msg = Command()
+        self.prev_msg.x = 255
         
         begin_x = 20; begin_y = 7
         height = 5; width = 40
@@ -39,7 +40,7 @@ class TrajectoryPublisher(Node):
         if c == ord('s'):
             msg.x = 0
         if c == ord('a'):
-            msg.x = -1
+            msg.x = 255
         if c == ord('e'):
             msg.speed = 1
         if c == ord('d'):
