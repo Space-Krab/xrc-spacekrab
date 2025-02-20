@@ -24,6 +24,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   msg/Vector3.msg
   msg/Twist.msg
   msg/Command.msg
+  msg/Controller.msg
   
 )
 
