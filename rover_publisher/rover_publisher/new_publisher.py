@@ -12,7 +12,7 @@ class TrajectoryPublisher2(Node):
         
         self.joystick = pygame.joystick.Joystick(0)
         
-        self.publisher = self.create_publisher(Controller, 'topic', 10)
+        self.publisher = self.create_publisher(Controller, 'topic', 2)
 
         self.get_logger().info('Publisher node has been started.')
 
