@@ -27,7 +27,7 @@ class TrajectoryPublisher(Node):
     def listener_callback(self, msg):
         buttons = msg.buttons
 
-        # Toggle mode (triangle = index 12)
+        # Toggle mode 
         if buttons[3] == 1 and self.prev_buttons[3] == 0:
             self.autonomous_mode = not self.autonomous_mode
             mode = "autonome" if self.autonomous_mode else "manuel"
