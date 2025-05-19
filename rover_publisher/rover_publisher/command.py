@@ -1,22 +1,32 @@
 import rclpy
+from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 from rclpy.node import Node
 from sensor_msgs import Joy
 from std_msgs.msg import String
 
+QOS_PROFILE_JOY = QoSProfile(
+    reliability=QoSReliabilityPolicy.BEST_EFFORT,
+    depth=1
+)
+
+QOS_PROFILE_ODOM = QoSProfile(
+    reliability=QoSReliabilityPolicy.RELIABLE,
+    depth=10
+)
 
 class TrajectoryPublisher(Node):
 
     def __init__(self):
         super().__init__('command')
         
-        self.publisher = self.create_publisher(Joy, '/cmd_vel', 2)
+        self.publisher = self.create_publisher(Joy, '/cmd_vel', QOS_PROFILE_JOY)
         
-        self.subscriber = self.create_subscription(Joy, '/joy', self.listener_callback)
+        self.subscriber = self.create_subscription(Joy, '/joy', self.listener_callback, QOS_PROFILE_JOY)
         
-        self.subscriber_odom = self.create_subscription(String, '/odom', self.odom_callback)
+        self.subscriber_odom = self.create_subscription(String, '/odom', self.odom_callback, QOS_PROFILE_ODOM)
         
         self.autonomous_mode = False
-        self.prev_buttons = [0] * 15
+        self.prev_buttons = [0] * 10
         
         self.trajectory = []
         self.current_index = 0
@@ -28,10 +38,22 @@ class TrajectoryPublisher(Node):
         buttons = msg.buttons
 
         # Toggle mode 
-        if buttons[3] == 1 and self.prev_buttons[3] == 0:
+        """if buttons[2] == 1 and self.prev_buttons[2] == 0:
             self.autonomous_mode = not self.autonomous_mode
             mode = "autonome" if self.autonomous_mode else "manuel"
-            self.get_logger().info(f"Mode changé : {mode}")
+            self.get_logger().info(f"Mode changé : {mode}")"""
+            
+        if buttons[2] == 1:
+            self.get_logger().info("Index 2")
+        
+        if buttons[1] == 1:
+            self.get_logger().info("Index 1")
+            
+        if buttons[0] == 1:
+            self.get_logger().info("Index 0")
+            
+        if buttons[3] == 1:
+            self.get_logger().info("Index 3")
 
         if not self.autonomous_mode:
             self.publisher.publish(msg)
@@ -42,17 +64,17 @@ class TrajectoryPublisher(Node):
             dpad_horizontal = msg.axes[6]
             dpad_vertical = msg.axes[7]
 
-            if dpad_vertical == 1 and self.prev_buttons[13] == 0:
+            if dpad_vertical == 1:
                 self.trajectory.append("up")
                 self.get_logger().info("Ajout: haut")
-            elif dpad_vertical == -1 and self.prev_buttons[14] == 0:
+            elif dpad_vertical == -1:
                 self.trajectory.append("down")
                 self.get_logger().info("Ajout: bas")
 
-            if dpad_horizontal == 1 and self.prev_buttons[15] == 0:
+            if dpad_horizontal == 1:
                 self.trajectory.append("right")
                 self.get_logger().info("Ajout: droite")
-            elif dpad_horizontal == -1 and self.prev_buttons[16] == 0:
+            elif dpad_horizontal == -1:
                 self.trajectory.append("left")
                 self.get_logger().info("Ajout: gauche")
 
