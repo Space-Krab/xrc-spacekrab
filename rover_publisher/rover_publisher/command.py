@@ -49,6 +49,7 @@ class TrajectoryPublisher(Node):
 
         if not self.autonomous_mode:
             self.publisher.publish(msg)
+            self.get_logger().info("Publish")
             return 
 
         # Construction de la trajectoire
