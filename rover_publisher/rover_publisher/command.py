@@ -27,6 +27,11 @@ class TrajectoryPublisher(Node):
         
         self.subscriber_odom = self.create_subscription(String, '/odom', self.odom_callback, QOS_PROFILE_ODOM)
         
+        self.timer = self.create_timer(0.02, self.control_loop)
+        
+        self.latest_msg = None
+        self.last_processed_msg = None
+        
         self.autonomous_mode = False
         self.prev_buttons = [0] * 10
         self.prev_h_dpad = 0
@@ -37,9 +42,15 @@ class TrajectoryPublisher(Node):
         self.executing = False
         
         self.get_logger().info('Command node has been started.')
-
-    def listener_callback(self, msg):
-        buttons = msg.buttons
+        
+    def control_loop(self):
+        if self.latest_msg is None:
+            return
+        
+        if not self.joy_changed(self.latest_msg, self.last_processed_msg):
+            return 
+        
+        buttons = self.latest_msg.buttons
 
         # Toggle mode 
         if buttons[2] == 1 and self.prev_buttons[2] == 0:
@@ -48,14 +59,14 @@ class TrajectoryPublisher(Node):
             self.get_logger().info(f"Mode changé : {mode}")
 
         if not self.autonomous_mode:
-            self.publisher.publish(msg)
+            self.publisher.publish(self.latest_msg)
             self.get_logger().info("Publish")
             return 
 
         # Construction de la trajectoire
         if not self.executing:
-            dpad_horizontal = msg.axes[6]
-            dpad_vertical = msg.axes[7]
+            dpad_horizontal = self.latest_msg.axes[6]
+            dpad_vertical = self.latest_msg.axes[7]
 
             if dpad_vertical == 1 and self.prev_v_dpad != 1:
                 self.trajectory.append("up")
@@ -91,9 +102,20 @@ class TrajectoryPublisher(Node):
             self.executing = False
             self.get_logger().info("Trajectoire effacée.")
 
-        self.prev_h_dpad = msg.axes[6]
-        self.prev_v_dpad = msg.axes[7]
+        self.prev_h_dpad = self.latest_msg.axes[6]
+        self.prev_v_dpad = self.latest_msg.axes[7]
         self.prev_buttons = buttons[:]
+        self.last_processed_msg = self.latest_msg
+
+    def joy_changed(self, new_msg, old_msg):
+        if old_msg is None:
+            return True  # Always process first message
+
+        # Compare axes and buttons
+        return (new_msg.axes != old_msg.axes) or (new_msg.buttons != old_msg.buttons)
+
+    def listener_callback(self, msg):
+        self.latest_msg = msg
         
     def odom_callback(self, msg):
         if not self.autonomous_mode or not self.executing:
