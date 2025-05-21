@@ -37,6 +37,8 @@ class TrajectoryPublisher(Node):
         self.prev_h_dpad = 0
         self.prev_v_dpad = 0
         
+        self.axis_threshold = 0.05
+        
         self.trajectory = []
         self.current_index = 0
         self.executing = False
@@ -111,8 +113,16 @@ class TrajectoryPublisher(Node):
         if old_msg is None:
             return True  # Always process first message
 
-        # Compare axes and buttons
-        return (new_msg.axes != old_msg.axes) or (new_msg.buttons != old_msg.buttons)
+        # Check if any axis changed significantly
+        for new_val, old_val in zip(new_msg.axes, old_msg.axes):
+            if abs(new_val - old_val) > self.axis_threshold:
+                return True
+
+        # Check if any button changed
+        if new_msg.buttons != old_msg.buttons:
+            return True
+
+        return False
 
     def listener_callback(self, msg):
         self.latest_msg = msg
