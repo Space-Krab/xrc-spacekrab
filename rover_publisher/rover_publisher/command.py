@@ -114,7 +114,7 @@ class TrajectoryPublisher(Node):
             return True  # Always process first message
 
         # Check if any axis changed significantly
-        for new_val, old_val in zip(new_msg.axes, old_msg.axes):
+        for new_val, old_val in zip(new_msg.axes[0:2], old_msg.axes[0:2]):
             if abs(new_val - old_val) > self.axis_threshold:
                 return True
 
