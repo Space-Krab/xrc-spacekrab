@@ -142,6 +142,8 @@ class TrajectoryPublisher(Node):
         else:
             self.executing = False
             self.send_movement_command("none")
+            self.trajectory.clear()
+            self.current_index = 0
             self.get_logger().info("Trajectoire terminée.")
         
     def send_movement_command(self, direction):
