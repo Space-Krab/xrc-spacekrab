@@ -48,15 +48,18 @@ class TrajectoryPublisher(Node):
     def control_loop(self):
         if self.latest_msg is None:
             return
-        
+
         if not self.joy_changed(self.latest_msg, self.last_processed_msg):
             return 
+        self.last_processed_msg = self.latest_msg
         
         buttons = self.latest_msg.buttons
 
         # Toggle mode 
         if buttons[2] == 1 and self.prev_buttons[2] == 0:
             self.autonomous_mode = not self.autonomous_mode
+            if self.autonomous_mode:
+                self.executing = False
             mode = "autonome" if self.autonomous_mode else "manuel"
             self.get_logger().info(f"Mode changé : {mode}")
 
@@ -107,14 +110,12 @@ class TrajectoryPublisher(Node):
         self.prev_h_dpad = self.latest_msg.axes[6]
         self.prev_v_dpad = self.latest_msg.axes[7]
         self.prev_buttons = buttons[:]
-        self.last_processed_msg = self.latest_msg
 
     def joy_changed(self, new_msg, old_msg):
-        if old_msg is None:
+        if old_msg == None:
             return True  # Always process first message
-
         # Check if any axis changed significantly
-        for new_val, old_val in zip(new_msg.axes[0:2], old_msg.axes[0:2]):
+        for new_val, old_val in zip(new_msg.axes, old_msg.axes):
             if abs(new_val - old_val) > self.axis_threshold:
                 return True
 
@@ -140,6 +141,7 @@ class TrajectoryPublisher(Node):
             self.current_index += 1
         else:
             self.executing = False
+            self.send_movement_command("none")
             self.get_logger().info("Trajectoire terminée.")
         
     def send_movement_command(self, direction):
