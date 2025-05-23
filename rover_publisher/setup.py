@@ -24,6 +24,7 @@ setup(
     entry_points={
         'console_scripts': [
             'publisher = rover_publisher.command:main',
+            'camera = rover_publisher.camera_pub:main',
         ],
     },
 )
