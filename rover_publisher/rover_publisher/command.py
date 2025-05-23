@@ -49,9 +49,9 @@ class TrajectoryPublisher(Node):
         if self.latest_msg is None:
             return
 
-        """if not self.joy_changed(self.latest_msg, self.last_processed_msg):
+        if not self.joy_changed(self.latest_msg, self.last_processed_msg):
             return 
-        self.last_processed_msg = self.latest_msg"""
+        self.last_processed_msg = self.latest_msg
         
         buttons = self.latest_msg.buttons
 
@@ -120,7 +120,7 @@ class TrajectoryPublisher(Node):
                 return True
 
         # Check if any button changed
-        if new_msg.buttons[0:4] != old_msg.buttons[0:4]:
+        if new_msg.buttons != old_msg.buttons:
             return True
 
         return False
