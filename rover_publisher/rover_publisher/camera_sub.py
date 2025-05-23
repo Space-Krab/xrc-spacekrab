@@ -8,8 +8,8 @@ import numpy as np
 
 class CompressedImageSubscriber(Node):
     
-    def _init_(self):
-        super()._init_('compressed_image_subscriber')
+    def __init__(self):
+        super().__init__('compressed_image_subscriber')
         
         self.subscription = self.create_subscription(
             CompressedImage,
